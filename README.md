@@ -1,77 +1,82 @@
+<div align="center">
+
+<img src="Icons/ClipLabLogo-ICO.png" width="96" alt="Clip Lab logo" />
+
 # Clip Lab
-![tcc9OGDvg3](https://github.com/booby1545/ClipLab/assets/107137294/0f56864a-cbe2-428a-ba5f-d6b895dbadb6)
 
-Clip Lab - це програма для скачування відео у форматі mp3, а також для редагування відео та звуку. За допомогою Clip Lab ви можете легко завантажувати відео з популярної платформи, такої як YouTube, у форматі mp3. У програмі також є функції редагування, які дають змогу склеювати два відео разом, конвертувати mp4 в mp3 і обрізати відео за секундами. Clip Lab - простий і зручний спосіб отримати потрібний відео- та аудіо-контент.
+**A lightweight Windows desktop app for downloading YouTube video/audio and doing quick video edits.**
 
-## Про проект
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows-0078D6.svg)](#requirements)
+[![.NET](https://img.shields.io/badge/.NET-6.0-512BD4.svg)](https://dotnet.microsoft.com/)
+[![UI](https://img.shields.io/badge/UI-WinForms-informational.svg)](#tech-stack)
 
-**У програмі використовуються такі бібліотеки:**
+![Clip Lab preview](https://github.com/booby1545/ClipLab/assets/107137294/0f56864a-cbe2-428a-ba5f-d6b895dbadb6)
 
-**[libvideo](https://github.com/omansak/libvideo/) - це бібліотека для завантаження відео з різних відеохостингів, таких як YouTube і Vimeo. Вона спрощує процес завантаження відео та надає зручний інтерфейс для роботи з ними.**
+</div>
 
-**[FFmpeg net](https://github.com/cmxl/FFmpeg.NET) - це набір бібліотек, який дає змогу працювати з форматом відео та аудіо, включно з кодуванням, декодуванням і конвертуванням файлів. Він використовується в Clip Lab для конвертації відео в mp3, а також для інших операцій з відео та звуком.
+> This is a polished fork of the original [ClipLab](https://github.com/flexeykinDev/ClipLab) — same core functionality, cleaned-up repo structure and docs.
 
-**[NReco Video Converter](https://www.nuget.org/packages/NReco.VideoConverter) - це бібліотека для конвертації відео та аудіо файлів. Вона надає простий інтерфейс для конвертації файлів у різні формати, і використовується в Clip Lab для конвертації mp4 в mp3.
+## About
 
-## Як почати роботу
+Clip Lab lets you download videos from YouTube as MP3 or the original video format, and do basic editing without a full video suite: merge two clips together, convert MP4 to MP3, and trim a video by seconds. It's a small, focused tool for the "I just need this one thing done" case.
 
-1. Клонуйте репозиторій проєкту, виконавши таку команду в командному рядку:
+**Features**
 
-```
-git clone https://github.com/booby1545/ClipLab.git
-```
+- Download YouTube videos as MP4 or extract audio as MP3
+- Merge two video files into one
+- Convert MP4 → MP3
+- Trim video by start/end time
+- Simple, themeable WinForms UI
 
-2. Розпакуйте архів із назвою "UNZIP.ME" у кореневу папку проєкту. Цей архів містить необхідні файли FFmpeg, які використовуються в програмі.
+## Tech stack
 
-3 Відкрийте проєкт у Visual Studio і запустіть збірку. Переконайтеся, що всі необхідні пакети NuGet встановлені, інакше проект може не скомпілюватися.
+| Purpose | Library |
+|---|---|
+| Video/audio download | [VideoLibrary](https://github.com/omansak/libvideo) |
+| Media conversion | [xFFmpeg.NET](https://github.com/cmxl/FFmpeg.NET) |
+| Media conversion | [NReco.VideoConverter](https://www.nuget.org/packages/NReco.VideoConverter) |
+| Runtime | .NET 6.0 (Windows Forms) |
 
-4. Після складання, запустіть програму і почніть використовувати її функції для завантаження і редагування відео та звуку.
+## Requirements
 
+- Windows 10/11
+- [.NET 6.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) (or the SDK, if building from source)
+- Visual Studio 2022 (only if building from source)
 
-## Як використовувати
+## Getting started
 
-1. Запустіть програму "Clip Lab".
+1. Clone the repository:
 
-2. У розділі "Завантажити" введіть посилання на відео на YouTube, яке ви хочете завантажити.
+   ```bash
+   git clone https://github.com/flexeykinDev/ClipLab-Pro.git
+   ```
 
-3) Якщо вам потрібен тільки аудіо-файл, поставте галочку "Тільки mp3".
+2. Unzip `( UNZIP.ME )FFmpeg.zip` into the project root — it contains the `ffmpeg.exe` binary the app depends on.
 
-4. Натисніть кнопку "Огляд" і виберіть шлях, куди хочете зберегти файл після скачування.
+3. Open `Clip Lab.sln` in Visual Studio and build. Make sure NuGet packages are restored, or the build will fail.
 
-5. Натисніть кнопку "Завантажити", щоб почати процес скачування. Процес може зайняти кілька хвилин залежно від розміру відео та вашої швидкості інтернет-з'єднання.
+4. Run the app from Visual Studio, or from the build output folder.
 
-6. Після завершення скачування, файл буде збережено в обраній вами папці.
+## Usage
 
-7. У розділі "Редагувати" ви можете склеювати два відео разом, конвертувати відео з формату mp4 в mp3 і обрізати відео по секундах. Використовуйте відповідні кнопки, щоб вибрати потрібну дію і дотримуйтесь інструкцій на екрані.
+1. **Download** tab — paste a YouTube link, optionally check "MP3 only", choose a save folder, and click **Download**.
+2. **Edit** tab — merge two videos, convert MP4 to MP3, or trim a video by seconds, using the corresponding buttons.
 
-## Як зробити свій внесок
+## Contributing
 
-Ви можете зробити свій внесок у проєкт "Clip Lab". Для цього вам потрібно зробити наступне:
+1. Create a branch for your change.
+2. Make your changes and test that they work as expected.
+3. Commit, push, and open a pull request against `main`.
 
-1. Створіть окрему гілку на GitHub для внесення змін.
+Ideas and improvements are welcome — feel free to fork the project and build on it under the terms of the license below.
 
-2. Склонуйте проєкт на свій комп'ютер і перейдіть на створену вами гілку.
+## Author
 
-3. Внесіть необхідні зміни в код програми.
+**yiksnele** — Discord: `yiksnele#1068`
+Email: [booby1546@gmail.com](mailto:booby1546@gmail.com)
 
-4. Протестуйте зміни, щоб переконатися, що вони працюють правильно і не викликають помилок.
+## License
 
-5. Закоммітьте зміни та надішліть їх на свою гілку на GitHub.
-
-6. Надішліть запит на злиття (Pull Request) в основну гілку проєкту.
-
-7. Очікуйте, поки автор проєкту розгляне ваш запит і прийме його, якщо він відповідає стандартам і вимогам проєкту.
-
-Якщо у вас є ідеї для поліпшення проєкту, ви можете створити свій власний проєкт на основі відкритого коду "Clip Lab". Використовуйте будь-які бібліотеки та інструменти, які відповідають ліцензії проєкту, і покращуйте його на власний розсуд.
-
-## Автори
-
-**yiksnele - Discord: yiksnele#1068**
-
-**Email - [booby1546@gmail.com](mailto:booby1546@gmail.com)**
-
-## Ліцензія
-
-Clip Lab поширюється під ліцензією Apache License 2.0. Детальну інформацію про ліцензію можна знайти у файлі [LICENSE](https://github.com/booby1545/ClipLab/blob/main/LICENSE).
-
-Apache License 2.0 © [flexeykinDev](https://github.com/flexeykinDev) 2025. Цей проект може бути використаний у комерційних і некомерційних цілях. Детальну інформацію про ліцензію можна знайти у файлі [LICENSE](https://github.com/flexeykinDev/ClipLab/blob/main/LICENSE).
+Distributed under the [Apache License 2.0](LICENSE).
+Apache License 2.0 © [flexeykinDev](https://github.com/flexeykinDev), 2025. Free to use for commercial and non-commercial purposes; see [LICENSE](LICENSE) for details.

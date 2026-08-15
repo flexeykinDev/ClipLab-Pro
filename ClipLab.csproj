@@ -8,11 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Icons\IconApp.ico</ApplicationIcon>
     <PackageIcon>IconApp.ico</PackageIcon>
-    <PackageProjectUrl>https://github.com/booby1545/ClipLab</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/flexeykinDev/ClipLab-Pro</PackageProjectUrl>
     <Copyright>yiksnele</Copyright>
-    <Description>A program that can simply download videos, convert to mp3 and merge videos.
+    <Description>A Windows desktop app for downloading YouTube video/audio and doing quick video edits (merge, trim, convert to mp3).
 </Description>
-    <RepositoryUrl>https://github.com/booby1545/ClipLab</RepositoryUrl>
+    <RepositoryUrl>https://github.com/flexeykinDev/ClipLab-Pro</RepositoryUrl>
     <PackageTags>ClipLab.VideoDownload.VideoEdit</PackageTags>
     <PackageReleaseNotes>-Добавлен функционал
 -Версия проекта обновлена до 1.0.0</PackageReleaseNotes>

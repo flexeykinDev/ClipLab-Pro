@@ -1,0 +1,38 @@
+## Visual Studio / .NET build artifacts
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio cache/options directory
+.vs/
+
+## User-specific files (MSBuild)
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+## Publish profiles (user-specific overrides)
+*.pubxml.user
+
+## NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Rider / ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## OS files
+.DS_Store
+Thumbs.db

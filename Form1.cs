@@ -130,7 +130,7 @@ namespace ClipLab
         private void Reset()
         {
             DisableButton();
-            lblTitle.Text = "√ŒÀŒ¬Õ¿";
+            lblTitle.Text = "–ì–û–õ–û–í–ù–ê";
             panelTitleBar.BackColor = Color.FromArgb(0, 133, 137);
             panelLogo.BackColor = Color.FromArgb(39, 38, 60);
             currentButton = null;

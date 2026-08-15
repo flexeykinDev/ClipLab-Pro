@@ -6,18 +6,14 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net;
-using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VideoLibrary;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using System.IO;
 using NReco.VideoConverter;
 using System.Diagnostics;
-using System.Net.Http.Headers;
-using System.Reflection.Emit;
 
 namespace ClipLab.Forms
 {
