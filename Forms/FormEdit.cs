@@ -5,13 +5,11 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FFmpeg.NET;
-using Microsoft.VisualBasic.ApplicationServices;
 using NReco.VideoConverter;
+using ClipLab.Core;
 using ClipLab.Notifications;
 
 
@@ -205,7 +203,14 @@ namespace ClipLab.Forms
                         File.Delete(listFile);
 
                         System.Media.SystemSounds.Asterisk.Play();
-                        AlertBox(Color.LightGray, Color.SeaGreen, "Успіх :)", "Операція виконана Успішно", Properties.Resources.Success_ICO30);
+                        if (process.ExitCode == 0)
+                        {
+                            AlertBox(Color.LightGray, Color.SeaGreen, "Успіх :)", "Операція виконана Успішно", Properties.Resources.Success_ICO30);
+                        }
+                        else
+                        {
+                            AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", $"FFmpeg завершився з помилкою (код {process.ExitCode}).", Properties.Resources.Error_ICO30);
+                        }
 
                     }
                 }
@@ -232,22 +237,29 @@ namespace ClipLab.Forms
             {
                 videoPath = openFileDialog.FileName;
                 videoName = openFileDialog.SafeFileName;
+                txtOpenVideo.Text = videoPath;
             }
-            txtOpenVideo.Text = videoPath;
         }
 
        
 
         private void btnSaveAudio_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(videoName))
+            {
+                System.Media.SystemSounds.Asterisk.Play();
+                AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", "Спочатку виберіть відео!", Properties.Resources.Error_ICO30);
+                return;
+            }
+
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
                 musicPath = folderBrowserDialog.SelectedPath;
-                musicName = videoName.Substring(0, videoName.Length - 4);
+                musicName = Path.GetFileNameWithoutExtension(videoName);
                 musicPath += ("\\" + musicName + ".mp3");
+                txtSaveVideo.Text = musicPath;
             }
-            txtSaveVideo.Text = musicPath;
         }
 
         private void btnConvert_Click(object sender, EventArgs e)
@@ -321,33 +333,25 @@ namespace ClipLab.Forms
             }
             else
             {
-                // Шлях до FFmpeg
-                string ffmpegPath = Path.Combine(Application.StartupPath, "ffmpeg.exe");
-
-
-
-                // Отримуємо початковий і кінцевий час обрізки з TextBox
-                string start = txtStartTime.Text;
-                string end = txtEndTime.Text;
-                // Перевіряємо, чи є start і end числами
-                double startNum, endNum;
-                bool isStartNum = double.TryParse(start, out startNum);
-                bool isEndNum = double.TryParse(end, out endNum);
-
-                if (!isStartNum || !isEndNum)
+                // Перевіряємо початковий і кінцевий час обрізки
+                if (!TrimRangeValidator.TryValidate(txtStartTime.Text, txtEndTime.Text, out var trimRange, out string? error))
                 {
                     System.Media.SystemSounds.Asterisk.Play();
-                    AlertBox(Color.LightGoldenrodYellow, Color.Gold, "Предупреждение :O", "Введите числовые значения для Start и End.", Properties.Resources.Warning_ICO30);
+                    AlertBox(Color.LightGoldenrodYellow, Color.Gold, "Попередження :O", error!, Properties.Resources.Warning_ICO30);
                     return;
                 }
-                else
+
+                try
                 {
+                    // Шлях до FFmpeg
+                    string ffmpegPath = Path.Combine(Application.StartupPath, "ffmpeg.exe");
+
                     // Отримуємо шляхи до вхідного і вихідного файлу
                     string inputFile = @$"{inputFileTab3}";
                     string outputFile = @$"{outputFileTab3}";
 
                     // Формуємо аргументи команди FFmpeg для обрізки відео
-                    string arguments = $"-i \"{inputFile}\" -ss {startNum} -to {endNum} -c copy \"{outputFile}\"";
+                    string arguments = $"-i \"{inputFile}\" -ss {trimRange.Start} -to {trimRange.End} -c copy \"{outputFile}\"";
 
                     // Створюємо процес для виконання команди FFmpeg
                     ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -356,7 +360,7 @@ namespace ClipLab.Forms
                     startInfo.UseShellExecute = false;
                     startInfo.CreateNoWindow = true;
 
-                    // Запускаем процесс
+                    // Запускаємо процес
                     Process process = new Process();
                     process.StartInfo = startInfo;
                     process.Start();
@@ -364,15 +368,22 @@ namespace ClipLab.Forms
                     // Очікуємо завершення процесу
                     process.WaitForExit();
 
-                    // Відображаємо повідомлення про успішну обрізку відео
                     System.Media.SystemSounds.Asterisk.Play();
-                    AlertBox(Color.LightGray, Color.SeaGreen, "Успіх :)", "Операція виконана Успішно!", Properties.Resources.Success_ICO30);
+                    if (process.ExitCode == 0)
+                    {
+                        AlertBox(Color.LightGray, Color.SeaGreen, "Успіх :)", "Операція виконана Успішно!", Properties.Resources.Success_ICO30);
+                    }
+                    else
+                    {
+                        AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", $"FFmpeg завершився з помилкою (код {process.ExitCode}).", Properties.Resources.Error_ICO30);
+                    }
                 }
-
-
+                catch (Exception ex)
+                {
+                    System.Media.SystemSounds.Asterisk.Play();
+                    AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", $"Сталася помилка під час обрізки відео: {ex.Message}", Properties.Resources.Error_ICO30);
+                }
             }
-
-
         }
     }
 

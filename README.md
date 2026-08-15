@@ -33,10 +33,18 @@ Clip Lab lets you download videos from YouTube as MP3 or the original video form
 
 | Purpose | Library |
 |---|---|
-| Video/audio download | [VideoLibrary](https://github.com/omansak/libvideo) |
-| Media conversion | [xFFmpeg.NET](https://github.com/cmxl/FFmpeg.NET) |
+| Video/audio download | [YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode) |
 | Media conversion | [NReco.VideoConverter](https://www.nuget.org/packages/NReco.VideoConverter) |
 | Runtime | .NET 6.0 (Windows Forms) |
+
+`ClipLab.Core` holds the pure logic (URL validation, filename sanitizing, trim-range checks) with an xUnit test suite in `ClipLab.Core.Tests` — no WinForms required to run it.
+
+## Tips
+
+- Big file, low patience? Use MP3-only mode — it skips the full video download where possible.
+- Above 720p, YouTube usually splits video and audio into separate streams; Clip Lab detects this and stitches them back together with ffmpeg automatically.
+- Trim expects seconds, not `mm:ss` — `90` means 1:30, not 90 seconds into a different clip.
+- If a download fails with a 403, it's usually YouTube being YouTube — retry once before assuming something's broken.
 
 ## Requirements
 
@@ -58,6 +66,12 @@ Clip Lab lets you download videos from YouTube as MP3 or the original video form
 
 4. Run the app from Visual Studio, or from the build output folder.
 
+To run the test suite instead:
+
+```bash
+dotnet test ClipLab.Core.Tests
+```
+
 ## Usage
 
 1. **Download** tab — paste a YouTube link, optionally check "MP3 only", choose a save folder, and click **Download**.
@@ -73,7 +87,7 @@ Ideas and improvements are welcome — feel free to fork the project and build o
 
 ## Author
 
-**yiksnele** — Discord: `yiksnele#1068`
+**yiksnele**
 Email: [booby1546@gmail.com](mailto:booby1546@gmail.com)
 
 ## License

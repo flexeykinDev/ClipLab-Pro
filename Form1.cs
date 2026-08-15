@@ -1,4 +1,3 @@
-using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 
 namespace ClipLab
@@ -6,10 +5,10 @@ namespace ClipLab
     public partial class Form1 : Form
     {
         //Fields
-        private Button currentButton;
+        private Button? currentButton;
         private Random random;
         private int tempIndex;
-        private Form activeForm;
+        private Form? activeForm;
 
         //Constructor 
         public Form1()

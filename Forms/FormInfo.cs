@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.Design;
 
 namespace ClipLab.Forms
 {
@@ -47,7 +46,7 @@ namespace ClipLab.Forms
 
             Process browserProcess = new Process();
             browserProcess.StartInfo.UseShellExecute = true;
-            browserProcess.StartInfo.FileName = "https://github.com/booby1545/ClipLab";
+            browserProcess.StartInfo.FileName = "https://github.com/flexeykinDev/ClipLab-Pro";
             browserProcess.Start();
 
 

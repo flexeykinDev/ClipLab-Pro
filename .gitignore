@@ -36,3 +36,9 @@ _ReSharper*/
 ## OS files
 .DS_Store
 Thumbs.db
+
+## ffmpeg.exe extracted locally from ( UNZIP.ME )FFmpeg.zip - not source, don't commit
+/FFmpeg/
+
+## Test results
+TestResults/

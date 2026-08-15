@@ -1,4 +1,5 @@
-﻿using ClipLab.Notifications;
+﻿using ClipLab.Core;
+using ClipLab.Notifications;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,13 +8,13 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using VideoLibrary;
 using System.IO;
 using NReco.VideoConverter;
 using System.Diagnostics;
+using YoutubeExplode;
+using YoutubeExplode.Videos.Streams;
 
 namespace ClipLab.Forms
 {
@@ -79,142 +80,137 @@ namespace ClipLab.Forms
     
 
 
+        private static readonly YoutubeClient YouTube = new();
+
+        private void ShowError(string text) =>
+            AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", text, Properties.Resources.Error_ICO30);
+
         private async void btnDownload_Click(object sender, EventArgs e)
         {
-            
+            string videoUrl = txtUrl.Text;
+            if (string.IsNullOrWhiteSpace(videoUrl))
+            {
+                System.Media.SystemSounds.Asterisk.Play();
+                ShowError("Вставте посилання на відео!");
+                return;
+            }
+
+            if (!YouTubeUrlValidator.IsValid(videoUrl))
+            {
+                System.Media.SystemSounds.Asterisk.Play();
+                ShowError("Посилання не вірне.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtSavePath.Text))
+            {
+                System.Media.SystemSounds.Asterisk.Play();
+                ShowError("Вкажіть шлях збереження!");
+                return;
+            }
+
             try
             {
-                // Отримуємо URL відео з текстового поля
-                string videoUrl = txtUrl.Text;
-                if (string.IsNullOrWhiteSpace(videoUrl))
+                // Дістаємо метадані відео та список доступних потоків (якостей)
+                var video = await YouTube.Videos.GetAsync(videoUrl);
+                var streamManifest = await YouTube.Videos.Streams.GetManifestAsync(videoUrl);
+
+                bool convertToMp3 = chkAudioOnly.Checked;
+                string safeTitle = FileNaming.SanitizeFileName(video.Title);
+                string extension = convertToMp3 ? "mp3" : "mp4";
+                string savePath = FileNaming.BuildSavePath(txtSavePath.Text, $"{safeTitle}.{extension}");
+
+                if (File.Exists(savePath))
                 {
                     System.Media.SystemSounds.Asterisk.Play();
-                    AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", "Вставте посилання на відео!", Properties.Resources.Error_ICO30);
+                    AlertBox(Color.LightGoldenrodYellow, Color.Gold, "Попередження :O", "Файл вже існує.", Properties.Resources.Warning_ICO30);
+                    return;
                 }
-                Regex regex = new Regex(@"^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$");
-                if (regex.IsMatch(videoUrl))
+
+                AlertBox(Color.LightBlue, Color.DodgerBlue, "Очікуйте ( ͡° ͜ʖ ͡°)", "завантаження файлу", Properties.Resources.Hint_ICO30);
+
+                if (convertToMp3)
                 {
-                    // Створюємо об'єкт для роботи з YouTube
-                    var youTube = YouTube.Default;
-
-                    // Отримуємо інформацію про відео
-                    var video = youTube.GetVideo(videoUrl);
-                    // Отримуємо назву відео
-
-                    string videoTitle = video.Title;
-
-                    string invalidChars = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-                    string safeTitle = string.Join("_", video.Title.Split(invalidChars.ToCharArray()));
-                    string fullName = safeTitle + video.FileExtension;
-
-                    if (string.IsNullOrWhiteSpace(txtSavePath.Text))
+                    // Завантажуємо найкращий доступний аудіопотік і конвертуємо в mp3
+                    var audioStreamInfo = streamManifest.GetAudioOnlyStreams().TryGetWithHighestBitrate();
+                    if (audioStreamInfo == null)
                     {
-                        System.Media.SystemSounds.Asterisk.Play();
-                        AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", "Вкажіть шлях збереження!", Properties.Resources.Error_ICO30);
+                        ShowError("Для цього відео немає доступного аудіопотоку.");
+                        return;
                     }
-                    if (!string.IsNullOrWhiteSpace(txtSavePath.Text))
+
+                    string tempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.{audioStreamInfo.Container.Name}");
+                    await YouTube.Videos.Streams.DownloadAsync(audioStreamInfo, tempPath);
+
+                    // Конвертація ffmpeg - важка синхронна робота, виконуємо її поза UI-потоком
+                    await Task.Run(() =>
                     {
-                        // Отримуємо шлях для збереження відео
-                        string savePath = txtSavePath.Text;
-
-                        // Додаємо назву файлу до шляху
-
-                        if (!savePath.EndsWith("\\"))
-                        {
-                            savePath += "\\";
-                        }
-                        savePath += fullName;
-
-
-                        // Запускаємо операцію завантаження відео в окремому потоці
-
-                            await Task.Run(() =>
-                            {
-                                AlertBox(Color.LightBlue, Color.DodgerBlue, "Очікуйте ( ͡° ͜ʖ ͡°)", "завантаження файлу", Properties.Resources.Hint_ICO30);
-
-                                // Отримуємо дані відео у вигляді масиву байт
-                                byte[] videoData = video.GetBytes();
-
-
-                                // Зберігаємо відео на диск
-                                if (File.Exists(savePath))
-                                {
-
-                                    System.Media.SystemSounds.Asterisk.Play();
-                                    AlertBox(Color.LightGoldenrodYellow, Color.Gold, "Попередження :O", "Файл вже існує.", Properties.Resources.Warning_ICO30);
-                                }
-                                else
-                                {
-                                    
-                                    bool convertToMp3 = chkAudioOnly.Checked;
-
-                                    if (convertToMp3)
-                                    {
-                                        // Створюємо об'єкт для конвертації відео
-                                        var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
-
-                                        var conv = new FFMpegConverter();
-                                        // Зберігаємо відео на диск
-                                        File.WriteAllBytes(savePath, videoData);
-                                        Thread.Sleep(500);
-                                        if (File.Exists(savePath))
-                                        {
-                                            // Шлях до вихідного файлу
-                                            var sourcePath = savePath;
-                                            
-                                            var outputPath = Path.Combine(Path.GetDirectoryName(savePath), Path.GetFileNameWithoutExtension(savePath)) + ".mp3";
-                                            // Конвертуємо відео у MP3
-                                            ffMpeg.ConvertMedia(sourcePath.Trim(), outputPath.Trim(), "mp3");
-                                            if (File.Exists(outputPath))
-                                            {
-                                                File.Delete(sourcePath);
-                                            }
-                                        }
-
-
-                                    }
-                                    else
-                                    {
-                                        // Зберігаємо відео на диск
-                                        File.WriteAllBytes(savePath, videoData);
-                                    }
-
-
-                                    System.Media.SystemSounds.Asterisk.Play();
-                                    AlertBox(Color.LightGray, Color.SeaGreen, "Успіх :)", "Відео успішно завантажено!", Properties.Resources.Success_ICO30);
-                                }
-                            
-                            });
-
-                    }
+                        var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
+                        ffMpeg.ConvertMedia(tempPath, savePath, "mp3");
+                    });
+                    File.Delete(tempPath);
                 }
                 else
                 {
-                    
-                    System.Media.SystemSounds.Asterisk.Play();
-                    AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", "Посилання не вірне.", Properties.Resources.Error_ICO30);
+                    // Спершу пробуємо потік, де аудіо+відео вже об'єднані - найпростіший випадок.
+                    var muxedStreamInfo = streamManifest.GetMuxedStreams().TryGetWithHighestVideoQuality();
+                    if (muxedStreamInfo != null)
+                    {
+                        await YouTube.Videos.Streams.DownloadAsync(muxedStreamInfo, savePath);
+                    }
+                    else
+                    {
+                        // YouTube часто не має об'єднаного потоку вище 720p - тоді відео і аудіо
+                        // йдуть окремими доріжками, і їх треба завантажити та об'єднати через ffmpeg.
+                        var videoOnlyStreamInfo = streamManifest.GetVideoOnlyStreams().TryGetWithHighestVideoQuality();
+                        var audioOnlyStreamInfo = streamManifest.GetAudioOnlyStreams().TryGetWithHighestBitrate();
+                        if (videoOnlyStreamInfo == null || audioOnlyStreamInfo == null)
+                        {
+                            ShowError("Для цього відео немає доступних потоків для завантаження.");
+                            return;
+                        }
+
+                        string tempVideoPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.{videoOnlyStreamInfo.Container.Name}");
+                        string tempAudioPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.{audioOnlyStreamInfo.Container.Name}");
+                        await YouTube.Videos.Streams.DownloadAsync(videoOnlyStreamInfo, tempVideoPath);
+                        await YouTube.Videos.Streams.DownloadAsync(audioOnlyStreamInfo, tempAudioPath);
+
+                        // Об'єднання доріжок ffmpeg-ом - важка синхронна робота, виконуємо поза UI-потоком
+                        await Task.Run(() =>
+                        {
+                            string ffmpegPath = Path.Combine(Application.StartupPath, "ffmpeg.exe");
+                            var startInfo = new ProcessStartInfo
+                            {
+                                FileName = ffmpegPath,
+                                Arguments = $"-i \"{tempVideoPath}\" -i \"{tempAudioPath}\" -c copy \"{savePath}\"",
+                                UseShellExecute = false,
+                                CreateNoWindow = true,
+                            };
+                            using var process = Process.Start(startInfo);
+                            process!.WaitForExit();
+                        });
+
+                        File.Delete(tempVideoPath);
+                        File.Delete(tempAudioPath);
+                    }
                 }
+
+                // Назад на UI-потоці - тут можна безпечно показувати діалоги
+                System.Media.SystemSounds.Asterisk.Play();
+                AlertBox(Color.LightGray, Color.SeaGreen, "Успіх :)", "Відео успішно завантажено!", Properties.Resources.Success_ICO30);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if (ex.Message.Contains("403")) // Якщо повідомлення про помилку містить "403"
+                System.Media.SystemSounds.Asterisk.Play();
+                if (ex.Message.Contains("403"))
                 {
-                    
-                    System.Media.SystemSounds.Asterisk.Play();
-                    AlertBox(Color.LightBlue, Color.DodgerBlue, "Помилка доступу", "Спробуйте ще раз!", Properties.Resources.Hint_ICO30);
-                    AlertBox(Color.LightBlue, Color.DodgerBlue, "Помилка доступу", "якщо не допомогло, перезапустіть програму!",  Properties.Resources.Hint_ICO30);
-
+                    AlertBox(Color.LightBlue, Color.DodgerBlue, "Помилка доступу", "Спробуйте ще раз! Якщо не допомогло, перезапустіть програму.", Properties.Resources.Hint_ICO30);
                 }
-                else // Якщо інша помилка
+                else
                 {
-
-                    System.Media.SystemSounds.Asterisk.Play();
-                    
-                    AlertBox(Color.LightPink, Color.DarkRed, "Помилка :(", "Невідома Помилка!", Properties.Resources.Error_ICO30);
-                    
+                    ShowError("Невідома Помилка!");
                 }
             }
-
         }
     }
 }

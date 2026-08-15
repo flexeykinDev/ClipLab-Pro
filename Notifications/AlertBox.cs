@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -63,10 +62,7 @@ namespace ClipLab.Notifications
         private void AlertBox_Load(object sender, EventArgs e)
         {
             PositionAlertBox();
-            for (int i = 0; i < 500; i++)
-            {
-                timerAnimation.Start();
-            }
+            timerAnimation.Start();
         }
 
         private void btnClose_Click(object sender, EventArgs e)
