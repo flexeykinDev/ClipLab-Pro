@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: Run tests
+        run: dotnet test ClipLab.Core.Tests
+
+      - name: Fetch ffmpeg
+        shell: bash
+        run: |
+          unzip -o "( UNZIP.ME )FFmpeg.zip" -d .
+
+      - name: Publish app
+        # ffmpeg.exe is picked up automatically from the FFmpeg\ffmpeg.exe
+        # None/CopyToOutputDirectory item in ClipLab.csproj - no separate copy step needed.
+        run: >
+          dotnet publish ClipLab.csproj -c Release -r win-x64
+          --self-contained false -p:PublishSingleFile=true -o publish
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build installer
+        shell: cmd
+        run: >
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          /DMyAppVersion=${{ steps.version.outputs.version }}
+          installer\ClipLab.iss
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installer-output/ClipLab-Setup-*.exe
+          generate_release_notes: true

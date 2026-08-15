@@ -42,3 +42,7 @@ Thumbs.db
 
 ## Test results
 TestResults/
+
+## Local installer build output (see .github/workflows/release.yml for the real build)
+/publish/
+/installer-output/

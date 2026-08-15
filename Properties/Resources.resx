@@ -175,9 +175,6 @@
   <data name="opened-folder-ICO30" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\opened-folder-ico30.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="ffmpeg" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\ffmpeg\ffmpeg.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="IconApp" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Icons\IconApp.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

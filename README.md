@@ -10,12 +10,19 @@
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D6.svg)](#requirements)
 [![.NET](https://img.shields.io/badge/.NET-6.0-512BD4.svg)](https://dotnet.microsoft.com/)
 [![UI](https://img.shields.io/badge/UI-WinForms-informational.svg)](#tech-stack)
+[![Latest release](https://img.shields.io/github/v/release/flexeykinDev/ClipLab-Pro?label=download)](https://github.com/flexeykinDev/ClipLab-Pro/releases/latest)
 
 ![Clip Lab preview](https://github.com/booby1545/ClipLab/assets/107137294/0f56864a-cbe2-428a-ba5f-d6b895dbadb6)
 
 </div>
 
 > This is a polished fork of the original [ClipLab](https://github.com/flexeykinDev/ClipLab) — same core functionality, cleaned-up repo structure and docs.
+
+## Download
+
+Grab the latest installer from the [**Releases**](https://github.com/flexeykinDev/ClipLab-Pro/releases/latest) page — `ClipLab-Setup-X.Y.Z.exe`. It installs the app, adds a Start Menu entry, and bundles ffmpeg, so there's nothing else to unzip by hand. Requires the [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime) (the installer checks and warns you if it's missing).
+
+Building from source instead? See [Getting started](#getting-started) below.
 
 ## About
 
@@ -71,6 +78,17 @@ To run the test suite instead:
 ```bash
 dotnet test ClipLab.Core.Tests
 ```
+
+### Building the installer locally
+
+Requires [Inno Setup 6](https://jrsoftware.org/isinfo.php). Every push of a `v*` tag also builds and publishes this automatically via [`.github/workflows/release.yml`](.github/workflows/release.yml).
+
+```bash
+dotnet publish ClipLab.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish
+iscc installer\ClipLab.iss
+```
+
+The finished installer lands in `installer-output\`.
 
 ## Usage
 
